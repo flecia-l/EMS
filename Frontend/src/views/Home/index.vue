@@ -29,7 +29,7 @@
                     <el-card v-for="(item,index) in countData" :key="index" :body-style="{ display:'flex', padding:0 }">
                         <i class="icon" :class="`el-icon-`+ item.icon" :style="{ background:item.color }"></i>
                         <div class="detail">
-                            <p class="num">￥{{item.value}}</p>
+                            <p class="num">{{item.value}}</p>
                             <p class="txt">{{item.name}}</p>
                         </div>
                     </el-card>
@@ -74,33 +74,33 @@
                     sales: '总销量'
                 },
                 countData: [{
-                    name: '今日支付订单',
-                    value: '1314',
+                    name: '今日待入职',
+                    value: '13',
                     icon: 'success',
                     color: 'cadetblue'
                 },{
-                    name: '今日收藏订单',
-                    value: '520',
+                    name: '今日待转正',
+                    value: '8',
                     icon: 'star-on',
                     color: 'darkkhaki'
                 },{
-                    name: '今日未支付订单',
-                    value: '1314',
+                    name: '今日待续签合同',
+                    value: '14',
                     icon: 's-goods',
                     color: 'rosybrown'
                 },{
-                    name: '本月支付订单',
-                    value: '1314',
+                    name: '本月待入职',
+                    value: '66',
                     icon: 'success',
                     color: 'cadetblue'
                 },{
-                    name: '本月收藏订单',
-                    value: '520',
+                    name: '本月待转正',
+                    value: '30',
                     icon: 'star-on',
                     color: 'darkkhaki'
                 },{
-                    name: '本月未支付订单',
-                    value: '1314',
+                    name: '本月待续签合同',
+                    value: '45',
                     icon: 's-goods',
                     color: 'rosybrown'
                 }],
