@@ -3,7 +3,8 @@ const pool = mysql.createPool({
   host     : '100.100.100.4',
   user     : 'flecia',
   password : 'Flecia.1014',
-  database : 'employee_system'
+  database : 'employee_system',
+  connectTimeout: 20000,
 });
 
 // 使用连接池获取连接

@@ -48,7 +48,7 @@ axios.defaults.baseURL = 'http://localhost:3000/api';
 let token = null;
 
 // 登陆验证函数
-export const login = async (username, password) => {
+export const loginPermission = async (username, password) => {
   try {
     const response = await axios.post('/login', { username, password });
     token = response.data.data.token; // 保存服务器返回的JWT令牌
@@ -63,7 +63,12 @@ export const login = async (username, password) => {
 // 获取员工列表函数
 export const getEmployees = async () => {
   try {
-    const response = await axios.get('/employees');
+    const token = localStorage.getItem('token');
+    const response = await axios.get('/employees', { 
+      headers: { 
+        Authorization: `Bearer ${token}` 
+      } 
+    });
     return response.data;
   } catch (error) {
     console.error('Get employees error:', error.response.data);
@@ -72,9 +77,9 @@ export const getEmployees = async () => {
 };
 
 // 添加员工函数
-export const addEmployee = async (name, gender, age, dept) => {
+export const addEmployee = async (id, name, gender, age, dept) => {
   try {
-    const response = await axios.post('/employees', { name, gender, age, dept });
+    const response = await axios.post('/employees', { id, name, gender, age, dept });
     return response.data;
   } catch (error) {
     console.error('Add employee error:', error.response.data);

@@ -46,7 +46,7 @@
 <script>
     import CommonForm from '@/components/CommonForm'
     import CommonTable from '@/components/CommonTable'
-    import { getUser } from '@/api/data'
+    import { getEmployees, addEmployee, updateEmployee, deleteEmployee } from '@/api/axios';
 
     export default {
         name:'User',
@@ -60,14 +60,14 @@
                 isShow: false,
                 formConfig: [
                     {
+                        label: '工号',
+                        type: 'input',
+                        model: 'id',
+                    },
+                    {
                         label: '姓名',
                         type: 'input',
                         model: 'name',
-                    },
-                    {
-                        label: '年龄',
-                        type: 'input',
-                        model: 'age',
                     },
                     {
                         label: '性别',
@@ -76,31 +76,32 @@
                         opts: [
                             {
                                 label: '男',
-                                value: '1',
+                                value: '男',
                             },
                             {
                                 label: '女',
-                                value: '0',
+                                value: '女',
                             },
                         ],
                     },
                     {
-                        label: '生日',
-                        type: 'date',
-                        model: 'birthday',
-                    },
-                    {
-                        label: '地址',
+                        label: '年龄',
                         type: 'input',
-                        model: 'address',
+                        model: 'age',
+                    },
+
+                    {
+                        label: '部门',
+                        type: 'input',
+                        model: 'dept',
                     },
                 ],
                 formData: {
+                    id: '',
                     name: '',
-                    age: '',
                     gender: '',
-                    birthday: '',
-                    address: '',
+                    age: '',
+                    dept: '',
                 },
                 searchFormConfig: [
                     {
@@ -114,26 +115,24 @@
                 },
                 tableConfig: [
                     {
-                        prop: 'name',
+                        prop: 'Id',
+                        label: '工号',
+                    },
+                    {
+                        prop: 'Name',
                         label: '姓名',
                     },
                     {
-                        prop: 'age',
-                        label: '年龄',
-                    },
-                    {
-                        prop: 'gender',
+                        prop: 'Gender',
                         label: '性别',
                     },
                     {
-                        prop: 'birthday',
-                        label: '生日',
-                        width: 200,
+                        prop: 'Age',
+                        label: '年龄',
                     },
                     {
-                        prop: 'address',
-                        label: '地址',
-                        width: 350
+                        prop: 'Dept',
+                        label: '部门',
                     },
                 ],
                 tableData: [],
@@ -146,16 +145,26 @@
         methods: {
             confirm() {
                 if(this.operateType === 'edit') {
-                    this.$http.post('/user/edit', this.formData).then(res => {
-                        // console.log(res);
+                    const { id, name, gender, age, dept } = this.formData;
+                    updateEmployee( id, name, gender, age, dept ).then(res => {
                         this.isShow = false;
+                        const flag = res.code === 200 ? 'success' : 'error';
                         this.getList();
+                        this.$message({
+                            type: flag,
+                            message: res.message
+                        });
                     });
                 } else {
-                    this.$http.post('/user/add', this.formData).then(res => {
-                        // console.log(res);
+                    const { id, name, gender, age, dept } = this.formData;
+                    addEmployee( id, name, gender, age, dept ).then(res => {
                         this.isShow = false;
+                        const flag = res.code === 200 ? 'success' : 'error';
                         this.getList();
+                        this.$message({
+                            type: flag,
+                            message: res.message
+                        });
                     });
                 }
             },
@@ -163,11 +172,11 @@
                 this.operateType = 'add';
                 this.isShow = true;
                 this.formData = {
+                    id: '',
                     name: '',
-                    age: '',
                     gender: '',
-                    birthday: '',
-                    address: '',
+                    age: '',
+                    dept: '',
                 };
             },
             editUser(row) {
@@ -181,10 +190,11 @@
                     cancelButtonText: '取消',
                     type: 'warning'
                 }).then(() => {
-                    const id = row.id;
-                    this.$http.get('/user/del', {
-                        params:{id}
-                    }).then(() => {
+                    const id = row.Id;
+                    console.log('row',row)
+                    console.log('id',id)
+                    deleteEmployee(id
+                    ).then(() => {
                         this.$message({
                             type: 'success',
                             message: '删除成功!'
@@ -203,14 +213,9 @@
             getList(name = '') {
                 this.pageConfig.loading = true;
                 this.pageConfig.page = name ? 1 : this.pageConfig.page;
-                getUser({
-                    page: this.pageConfig.page,
-                    name
-                }).then(res => {
-                    this.tableData = res.data.list && res.data.list.map(item => {
-                        item.gender = item.sex === 0 ? '女' : '男'
-                        return item
-                    })
+                getEmployees().then(res => {
+                    this.tableData = res.data
+                    console.log(res.data)
                     this.tableConfig.total = res.data.count
                     this.tableConfig.loading = false
                 });

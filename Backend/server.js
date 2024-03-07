@@ -1,7 +1,10 @@
 require('dotenv').config();
+const cors = require('cors');
 const express = require('express');
 const app = express();
 const port = 3000;
+
+app.use(cors());
 
 // 引入路由处理模块（比如 auth.js，其中包含登录验证逻辑）
 const authRoutes = require('./api/routes/auth.js'); 

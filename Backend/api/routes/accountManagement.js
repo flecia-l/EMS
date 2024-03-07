@@ -35,29 +35,58 @@ router.post('/account', async (req, res) => {
 // 更新账号密码
 router.put('/account', authenticate, async (req, res) => {
     const { username, newPassword } = req.body;
-    const userType = req.user.userType; // 从JWT令牌解析的用户类型
-    const userUsername = req.user.username; // 从JWT令牌解析的用户名
+    let userType;
 
     try {
-        // 如果是管理员，或者是非管理员但尝试更新自己的密码
-        if (userType === 'admin' || (userType !== 'admin' && userUsername === username)) {
-            // 使用bcrypt对新密码进行加密
-            const hashedPassword = await bcrypt.hash(newPassword, 8);
+        // 从employee表获取请求更新密码的用户的类型
+        const userTypeResult = await pool.query(`
+            SELECT User_type FROM employee
+            WHERE Id = (SELECT Id FROM employee_login WHERE User_name = ?)
+            UNION
+            SELECT User_type FROM employee
+            WHERE Id = (SELECT Id FROM manager_login WHERE User_name = ?)
+            UNION
+            SELECT 0 AS User_type FROM admin WHERE User_name = ?`, 
+            [username, username, username]
+        );
 
-            // 更新数据库中的密码
-            const sql = `UPDATE ${userType === 'admin' ? 'admin' : userType === 'manager' ? 'manager_login' : 'employee_login'}
-                         SET Password = $1 WHERE User_name = $2`;
-            await pool.query(sql, [hashedPassword, username]);
-
-            res.json({ code: 20000, message: '密码更新成功' });
+        if (userTypeResult.length > 0) {
+            userType = userTypeResult[0].User_type;
         } else {
-            // 如果非管理员尝试更新其他用户的密码
-            res.status(403).json({ message: '无权限更新其他用户的密码' });
+            return res.status(404).json({ message: "用户不存在" });
+        }
+
+        const requesterUsername = req.user.username; // 从身份验证中间件解析出的用户名
+        const requesterUserType = req.user.userType; // 从身份验证中间件解析出的用户类型
+
+        let table;
+        switch (userType) {
+            case 0:
+                table = 'admin';
+                break;
+            case 1:
+                table = 'manager_login';
+                break;
+            case 2:
+                table = 'employee_login';
+                break;
+            default:
+                return res.status(400).json({ message: '未知的用户类型' });
+        }
+
+        // 如果是管理员或者是用户尝试更新自己的密码
+        if (requesterUserType === 0 || (requesterUsername === username)) {
+            const hashedPassword = await bcrypt.hash(newPassword, 8);
+            await pool.query(`UPDATE ${table} SET Password = ? WHERE User_name = ?`, [hashedPassword, username]);
+            res.json({ code: 200, message: '密码更新成功' });
+        } else {
+            return res.status(403).json({ message: '无权限更新其他用户的密码' });
         }
     } catch (err) {
         res.status(500).json({ message: '服务器错误', error: err.message });
     }
 });
+
 
 // 删除账号
 router.delete('/account', async (req, res) => {
