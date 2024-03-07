@@ -1,0 +1,2 @@
+"use strict";(self["webpackChunkvue_manage"]=self["webpackChunkvue_manage"]||[]).push([[93],{9093:function(n,e,u){u.r(e),u.d(e,{default:function(){return f}});var l=function(){var n=this,e=n._self._c;return e("div",[n._v(" 我是Mall ")])},a=[],t={name:"Mall"},r=t,s=u(1001),c=(0,s.Z)(r,l,a,!1,null,null,null),f=c.exports}}]);
+//# sourceMappingURL=93.3bbc9096.js.map
