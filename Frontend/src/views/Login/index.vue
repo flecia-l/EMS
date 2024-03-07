@@ -1,6 +1,7 @@
 <template>
     <div class="login-container">
         <h3 class="login-title">员工管理系统登录</h3>
+        <h3 class="login-title">员工管理系统登录</h3>
         <common-form 
             :formConfig="loginFormConfig" 
             :formData="loginFormData"
@@ -18,9 +19,6 @@
 
 <script>
     import CommonForm from '@/components/CommonForm'
-    // import Mock from 'mockjs'
-    // import { getMenu } from '@/api/data'
-    import { loginPermission } from '@/api/axios'
     // import Mock from 'mockjs'
     // import { getMenu } from '@/api/data'
     import { loginPermission } from '@/api/axios'
@@ -78,35 +76,21 @@
                     console.log(res)
                     localStorage.setItem('token', res.data.token);
                     if(res.code === 200){
-                // getMenu(this.loginFormData).then(({data:res}) => {
-                //     if(res.code === 20000){
-                //         this.$store.commit('tab/DEL_MENU');
-                //         this.$store.commit('tab/SET_MENU', res.data.menu);
-                //         this.$store.commit('user/SET_TOKEN',res.data.token);
-                //         this.$store.commit('tab/ADD_MENU',this.$router);
-                //         this.$router.push({ name: 'home' })
-                //     } else {
-                //         this.$message.warning(res.data.message)
-                //     }
-                // })
-                // const token = Mock.Random.guid()
-                const { username, password } = this.loginFormData;
-                loginPermission( username, password ).then((res) => {
-                    console.log(res)
-                    localStorage.setItem('token', res.data.token);
-                    if(res.code === 200){
                         this.$store.commit('tab/DEL_MENU');
                         this.$store.commit('tab/SET_MENU', res.data.menu);
-                        console.log(res.data.menu)
                         console.log(res.data.menu)
                         this.$store.commit('user/SET_TOKEN',res.data.token);
                         this.$store.commit('tab/ADD_MENU',this.$router);
                         this.$router.push({ name: 'home' })
                         this.$store.commit('user/SET_TOKEN', res.token)
-                        this.$store.commit('user/SET_TOKEN', res.token)
                     } else {
                         this.$message.error(res.data.message || '用户名或密码错误');
+                        this.$message.error(res.data.message || '用户名或密码错误');
                     }
+                }).catch((error)=> {
+                    this.$message.error('登录请求失败: ' + error.message);
+                });
+                // this.$store.commit('user/SET_TOKEN', token)
                 }).catch((error)=> {
                     this.$message.error('登录请求失败: ' + error.message);
                 });
