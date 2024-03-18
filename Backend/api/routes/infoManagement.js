@@ -1,10 +1,13 @@
 const express = require('express');
-const pool = require('../../config/db');
+const {pool} = require('../../config/db');
 const authenticate = require('../../middlewares/authenticate');
 const router = express.Router();
+const logger = require('../../logger/Logger');
+
 
 // 获取员工列表
 router.get('/employees', authenticate, async (req, res) => {
+    logger.log('Starting to process /employees request.');
     try {
         const { username, userType } = req.user
         console.log('userType', userType);
