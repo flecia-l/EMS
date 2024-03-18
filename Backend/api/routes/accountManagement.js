@@ -2,7 +2,8 @@ const express = require('express');
 const bcrypt = require('bcrypt');
 const authenticate = require('../../middlewares/authenticate');
 const router = express.Router();
-const pool = require('../../config/db'); // 假设你已经在db.js中配置了MySQL连接池
+const {pool} = require('../../config/db'); 
+
 
 // 获取所有账号信息（员工和经理）
 router.get('/accounts', async (req, res) => {
