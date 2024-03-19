@@ -43,6 +43,21 @@ export default {
             state.menu = [];
             Cookie.remove('menu');
         },
+        CLEAR_USER_STATE(state) {
+            // 清除状态
+            state.user = null;
+            state.currentMenu = null;
+            state.tabList = [
+                {
+                    path: '/',
+                    name: 'home',
+                    label: '首页',
+                    icon: 's-home',
+                },
+            ];
+            // 移除 cookies 中的用户信息
+            Cookie.remove('user');
+        },
         ADD_MENU(state, router) {
             if(!Cookie.get('menu')) {
                 return

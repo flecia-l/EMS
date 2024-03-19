@@ -1,8 +1,17 @@
 <template>
     <el-form ref="form" :label-width="width || '100px'" :model="form_data" :inline="inline" :rules="rules">
-        <el-form-item v-for="item in form_config" :key="item.lable" :label="item.label">
+        <el-form-item v-for="item in form_config" :key="item.label" :label="item.label">
             <el-input
                 v-if="item.type === 'input'"
+                :type="item.inputType || 'text'"
+                :placeholder="'请输入'+item.label"
+                v-model="form_data[item.model]"
+            >
+            </el-input>
+            <!-- Add this block for password input -->
+            <el-input
+                v-if="item.type === 'password'"
+                :type="'password'"
                 :placeholder="'请输入'+item.label"
                 v-model="form_data[item.model]"
             >
