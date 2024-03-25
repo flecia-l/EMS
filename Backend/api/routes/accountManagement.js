@@ -6,13 +6,26 @@ const {pool} = require('../../config/db');
 
 
 // 获取所有账号信息（员工和经理）
-router.get('/accounts', async (req, res) => {
+router.get('/accounts', authenticate, async (req, res) => {
     try {
+        const { username, userType } = req.user
+        if (userType == 1) {
+            const account = await pool.query(`
+                SELECT User_name, Password, 'employee' AS Type FROM manager_login
+                WHERE User_name = ? `, [username]);
+        }
+        if (userType == 2) {
+            const account = await pool.query(`
+                SELECT User_name, Password, 'manager' AS Type FROM employee_login
+                WHERE User_name = ? `, [username]);
+        }
+        else {
         const allAccounts = await pool.query(`
             SELECT User_name, Password, 'employee' AS Type FROM employee_login
             UNION
             SELECT User_name, Password, 'manager' AS Type FROM manager_login`);
         res.json(allAccounts);
+        }
     } catch (err) {
         res.status(500).json({ message: "数据库查询失败", error: err });
     }
