@@ -6,12 +6,7 @@
       <i :class="'el-icon-' + item.icon"></i>
       <span slot="title">{{ item.label }}</span>
     </el-menu-item>
-    <!-- ... -->
-    <!-- 退出菜单项 -->
-    <el-menu-item index="logout" @click="logout">
-      <i class="el-icon-switch-button"></i>
-      <span slot="title">退出</span>
-    </el-menu-item>
+    <!-- 退出菜单项已被删除 -->
   </el-menu>
 </template>
 
@@ -40,7 +35,6 @@ export default {
       // 跳转到登录页面
       this.$router.push('/login');
     },
-    // 注意此处不需要逗号
   },
   computed: {
     ...mapState('tab', {

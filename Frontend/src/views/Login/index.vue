@@ -15,79 +15,79 @@
   </template>
   
   <script>
-  import CommonForm from '@/components/CommonForm'
-  // import Mock from 'mockjs'
-  // import { getMenu } from '@/api/data'
-  import { loginPermission } from '@/api/axios'
+    import CommonForm from '@/components/CommonForm'
+    // import Mock from 'mockjs'
+    // import { getMenu } from '@/api/data'
+    import { loginPermission } from '@/api/axios'
 
-  export default {
-      name:'Login',
-      components: {
-          CommonForm,
-      },
-      data(){
-          return {
-              width: '70px',
-              loginFormConfig: [
-                  {
-                      label: '用户名',
-                      type: 'input',
-                      model: 'username',
-                  },
-                  {
-                      label: '密码',
-                      type: 'password',
-                      model: 'password',
-                  },
-              ],
-              loginFormData: {
-                  username: '',
-                  password: '',
-              },
-              rules: {
-                  username: [
-                      { required: true, message: '请输入用户名', trigger: 'blur' },
-                  ],
-                  password: [
-                      { required: true, message: '请输入密码', trigger: 'blur' },
-                  ],
-              },
-          }
-      },
-      methods: {
-          login(){
-              // getMenu(this.loginFormData).then(({data:res}) => {
-              //     if(res.code === 20000){
-              //         this.$store.commit('tab/DEL_MENU');
-              //         this.$store.commit('tab/SET_MENU', res.data.menu);
-              //         this.$store.commit('user/SET_TOKEN',res.data.token);
-              //         this.$store.commit('tab/ADD_MENU',this.$router);
-              //         this.$router.push({ name: 'home' })
-              //     } else {
-              //         this.$message.warning(res.data.message)
-              //     }
-              // })
-              // const token = Mock.Random.guid()
-              const { username, password } = this.loginFormData;
-              loginPermission( username, password ).then((res) => {
-                  console.log(res)
-                  localStorage.setItem('token', res.data.token);
-                  if(res.code === 200){
-                      this.$store.commit('tab/DEL_MENU');
-                      this.$store.commit('tab/SET_MENU', res.data.menu);
-                      console.log(res.data.menu)
-                      this.$store.commit('user/SET_TOKEN',res.data.token);
-                      this.$store.commit('tab/ADD_MENU',this.$router);
-                      this.$router.push({ name: 'home' })
-                      this.$store.commit('user/SET_TOKEN', res.token)
-                  } else {
-                      this.$message.warning(res.data.message)
-                  }
-              })
-              // this.$store.commit('user/SET_TOKEN', token)
-          }
-      }
-  }
+    export default {
+        name:'Login',
+        components: {
+            CommonForm,
+        },
+        data(){
+            return {
+                width: '70px',
+                loginFormConfig: [
+                    {
+                        label: '用户名',
+                        type: 'input',
+                        model: 'username',
+                    },
+                    {
+                        label: '密码',
+                        type: 'input',
+                        model: 'password',
+                    },
+                ],
+                loginFormData: {
+                    username: '',
+                    password: '',
+                },
+                rules: {
+                    username: [
+                        { required: true, message: '请输入用户名', trigger: 'blur' },
+                    ],
+                    password: [
+                        { required: true, message: '请输入密码', trigger: 'blur' },
+                    ],
+                },
+            }
+        },
+        methods: {
+            login(){
+                // getMenu(this.loginFormData).then(({data:res}) => {
+                //     if(res.code === 20000){
+                //         this.$store.commit('tab/DEL_MENU');
+                //         this.$store.commit('tab/SET_MENU', res.data.menu);
+                //         this.$store.commit('user/SET_TOKEN',res.data.token);
+                //         this.$store.commit('tab/ADD_MENU',this.$router);
+                //         this.$router.push({ name: 'home' })
+                //     } else {
+                //         this.$message.warning(res.data.message)
+                //     }
+                // })
+                // const token = Mock.Random.guid()
+                const { username, password } = this.loginFormData;
+                loginPermission( username, password ).then((res) => {
+                    console.log(res)
+                    localStorage.setItem('token', res.data.token);
+                    if(res.code === 200){
+                        this.$store.commit('tab/DEL_MENU');
+                        this.$store.commit('tab/SET_MENU', res.data.menu);
+                        console.log(res.data.menu)
+                        this.$store.commit('user/SET_TOKEN',res.data.token);
+                        this.$store.commit('tab/ADD_MENU',this.$router);
+                        this.$router.push({ name: 'home' })
+                        this.$store.commit('user/SET_TOKEN', res.token)
+                    } else {
+                        this.$message.warning(res.data.message)
+                    }
+                })
+                // this.$store.commit('user/SET_TOKEN', token)
+            }
+        }
+    }
 </script>
   
   <style lang="less" scoped>
