@@ -1,8 +1,8 @@
 {    
     "database": { 
-        "host" : "localhost",
-        "user" : "root",
-        "password" : "Gaozigeng0729",
+        "host" : "100.100.100.4",
+        "user" : "flecia",
+        "password" : "Ss.123456",
         "database" : "employee_system",
         "connectTimeout" : 20000
     },
