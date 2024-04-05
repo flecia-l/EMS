@@ -1,44 +1,3 @@
-// import axios from 'axios'
-// import config from '@/config'
-
-// const baseUrl = process.env.NODE_ENV === 'development' ? config.baseUrl.dev : config.baseUrl.pro
-
-// class HttpRequest {
-//     constructor(baseUrl){
-//         this.baseUrl = baseUrl
-//     }
-
-//     getInsideConfig(){
-//         const config = {
-//             baseURL: this.baseUrl,
-//             headers: {}
-//         }
-//         return config
-//     }
-//     interceptors(instance){
-//         // 请求拦截
-//         instance.interceptors.request.use(config => {
-//             return config
-//         }, error => {
-//             return Promise.reject(error)
-//         })
-//         // 响应拦截
-//         instance.interceptors.response.use(res => {
-//             return res
-//         }, error => {
-//             return Promise.reject(error)
-//         })
-//     }
-//     request(options){
-//         const instance = axios.create()
-//         options = { ...this.getInsideConfig(), ...options}
-//         this.interceptors(instance)
-//         return instance(options)
-//     }
-// }
-
-// export default new HttpRequest(baseUrl)
-
 import axios from 'axios';
 
 // 设置axios的基本URL，这应该是你的后端服务地址
@@ -112,7 +71,12 @@ export const deleteEmployee = async (id) => {
 // 获取所有账号信息（员工和经理）函数
 export const getAccounts = async () => {
   try {
-    const response = await axios.get('/accounts');
+    const token = localStorage.getItem('token');
+    const response = await axios.get('/accounts', { 
+      headers: { 
+        Authorization: `Bearer ${token}` 
+      } 
+    });
     return response.data;
   } catch (error) {
     console.error('Get accounts error:', error.response.data);
