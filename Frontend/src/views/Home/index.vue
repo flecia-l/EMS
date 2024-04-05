@@ -589,4 +589,28 @@ export default {
   background-color: #17b3a3;
   color: #fff;
 }
+
+.chart-wrapper {
+  display: flex;
+  justify-content: space-around;
+  padding: 20px;
+}
+
+.chart-container {
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  height: 1000px; /* 图表容器高度 */
+  margin: 4px; /* 增加图表之间的间距 */
+}
+
+.chart {
+  height: 100%; /* 图表高度填满容器 */
+}
+
+.chart-container:hover {
+  transform: translateY(-5px); /* 悬停时向上移动 */
+  box-shadow: 0 12px 16px rgba(0, 0, 0, 0.2); /* 添加阴影 */
+}
 </style>
