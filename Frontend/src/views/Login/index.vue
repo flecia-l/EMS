@@ -34,7 +34,7 @@ export default {
                 },
                 {
                     label: '密码',
-                    type: 'input',
+                    type: 'password',
                     model: 'password',
                 },
             ],

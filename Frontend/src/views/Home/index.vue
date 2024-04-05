@@ -1,6 +1,8 @@
 <template>
   <el-row class="home" :gutter="20">
+    <!-- 左侧栏 -->
     <el-col :span="8" style="margin-top:20px">
+      <!-- 用户信息卡片 -->
       <el-card shadow="hover">
         <div class="user">
           <img :src="userImg">
@@ -15,6 +17,7 @@
         </div>
       </el-card>
 
+      <!-- 日历卡片 -->
       <el-card class="box-card calendar-card" style="margin-top:20px;">
         <div slot="header" class="clearfix">
           <span>日历</span>
@@ -22,9 +25,10 @@
         <el-calendar v-model="value"></el-calendar>
       </el-card>
     </el-col>
-    <el-col :span="16" style="margin-top:20px"></el-col>
 
+    <!-- 右侧内容 -->
     <el-col :span="16" style="margin-top:20px">
+      <!-- 数字信息 -->
       <div class="num">
         <el-card v-for="(item, index) in countData" :key="index" :body-style="{ display: 'flex', padding: 0 }">
           <i class="icon" :class="`el-icon-` + item.icon" :style="{ background: item.color }"></i>
@@ -35,12 +39,24 @@
         </el-card>
       </div>
 
-      <el-card style="margin-top:20px; height:460px;">
-        <div v-if="saleData" class="sale-image-container">
-          <img :src="saleData.imageUrl" alt="本月销量图" class="sale-image">
-        </div>
-      </el-card>
+      <el-row justify="space-around" style="margin-top: 20px;">
+        <!-- 考勤柱状图 -->
+        <el-col :span="8">
+          <div ref="attendanceChart" class="chart-container" style="height: 350px;"></div>
+        </el-col>
 
+        <!-- 业绩折线图 -->
+        <el-col :span="8">
+          <div ref="performanceChart" class="chart-container" style="height: 350px;"></div>
+        </el-col>
+
+        <!-- 营业额饼图 -->
+        <el-col :span="8">
+          <div ref="turnoverChart" class="chart-container" style="height: 350px;"></div>
+        </el-col>
+      </el-row>
+
+      <!-- 公告栏 -->
       <el-card class="box-card" style="margin-top:20px;">
         <div slot="header" class="clearfix">
           <span>公告栏</span>
@@ -70,6 +86,20 @@ import Mock from 'mockjs';
 import { getData } from '@/api/data';
 import * as echarts from 'echarts';
 import ECharts from '@/components/ECharts';
+function generateAttendanceData() {
+  return Mock.Random.integer(80, 100); // 生成一个介于80到100之间的随机整数
+}
+
+// 生成随机业绩数据的函数
+function generatePerformanceData() {
+  return Mock.Random.float(0, 1, 0, 2); // 生成一个保留两位小数的介于0到1之间的随机浮点数
+}
+
+// 生成随机营业额数据的函数
+function generateTurnoverData() {
+  return Mock.Random.integer(100000, 500000); // 生成一个介于100000到500000之间的随机整数
+}
+
 
 export default {
   name: 'Home',
@@ -172,6 +202,115 @@ export default {
     },
   },
   mounted() {
+    const attendanceData = [
+      generateAttendanceData(),
+      generateAttendanceData(),
+      generateAttendanceData(),
+      generateAttendanceData(),
+      generateAttendanceData(),
+    ];
+
+    const performanceData = [
+      generatePerformanceData(),
+      generatePerformanceData(),
+      generatePerformanceData(),
+      generatePerformanceData(),
+      generatePerformanceData(),
+    ];
+
+    const turnoverData = [
+      generateTurnoverData(),
+      generateTurnoverData(),
+      generateTurnoverData(),
+      generateTurnoverData(),
+    ];
+
+    // 考勤柱状图
+    const attendanceChart = echarts.init(this.$refs.attendanceChart);
+    const attendanceOptions = {
+      title: {
+        text: '考勤率',
+      },
+      xAxis: {
+        type: 'category',
+        data: ['全体', '部门1', '部门2', '部门3', '部门4'],
+      },
+      yAxis: {
+        type: 'value',
+      },
+      series: [{
+        data: attendanceData,
+        type: 'bar',
+      }],
+    };
+    attendanceChart.setOption(attendanceOptions);
+
+    // 业绩折线图
+    const performanceChart = echarts.init(this.$refs.performanceChart);
+    const performanceOptions = {
+      title: {
+        text: '业绩变化',
+      },
+      xAxis: {
+        type: 'category',
+        data: ['1月', '2月', '3月', '4月', '5月'],
+      },
+      yAxis: {
+        type: 'value',
+      },
+      series: [{
+        data: performanceData,
+        type: 'line',
+      }],
+    };
+    performanceChart.setOption(performanceOptions);
+
+    // 营业额饼图
+    const turnoverChart = echarts.init(this.$refs.turnoverChart);
+    const turnoverOptions = {
+      title: {
+        text: '营业额占比',
+        left: 'center',
+      },
+      tooltip: {
+        trigger: 'item',
+        formatter: '{a} <br/>{b}: {c} ({d}%)',
+      },
+      legend: {
+        orient: 'vertical',
+        left: 10,
+        data: ['部门1', '部门2', '部门3', '部门4'],
+      },
+      series: [
+        {
+          name: '营业额',
+          type: 'pie',
+          radius: ['50%', '70%'],
+          avoidLabelOverlap: false,
+          label: {
+            show: false,
+            position: 'center',
+          },
+          emphasis: {
+            label: {
+              show: true,
+              fontSize: '20',
+              fontWeight: 'bold',
+            },
+          },
+          labelLine: {
+            show: false,
+          },
+          data: [
+            { value: turnoverData[0], name: '部门1' },
+            { value: turnoverData[1], name: '部门2' },
+            { value: turnoverData[2], name: '部门3' },
+            { value: turnoverData[3], name: '部门4' },
+          ],
+        },
+      ],
+    };
+    turnoverChart.setOption(turnoverOptions);
     this.fetchLastLogin();
     this.fetchAnnouncements();
     getData().then(res => {
@@ -318,14 +457,17 @@ export default {
   margin-right: 12px;
   z-index: 1;
 }
+
 .announcement-item .bullet::after {
   content: '';
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 6px; /* 中心白色部分的直径 */
-  height: 6px; /* 中心白色部分的直径 */
+  width: 6px;
+  /* 中心白色部分的直径 */
+  height: 6px;
+  /* 中心白色部分的直径 */
   border-radius: 50%;
   background: white;
   z-index: 2;
@@ -351,7 +493,8 @@ export default {
 .announcement-list::before {
   content: '';
   position: absolute;
-  left:4px; /* 子弹点中心位置，可能需要根据实际情况调整 */
+  left: 4px;
+  /* 子弹点中心位置，可能需要根据实际情况调整 */
   top: 0;
   bottom: 0;
   width: 2px;
@@ -362,11 +505,12 @@ export default {
 /* 标题和内容的样式，保证标题在一行内显示 */
 .announcement-item .title,
 .announcement-item .content {
-  font-weight: bold;  
+  font-weight: bold;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: calc(100% - 40px); /* 留出足够空间，避免与子弹点重叠 */
+  max-width: calc(100% - 40px);
+  /* 留出足够空间，避免与子弹点重叠 */
   display: block;
 }
 
@@ -375,9 +519,12 @@ export default {
   content: '';
   display: block;
   height: 1px;
-  background-color: #17b3a3; /* 横线颜色 */
-  margin-top: 15px; /* 在公告和横线之间添加一些空间 */
-  margin-bottom: 15px; /* 在横线和下一条公告之间添加一些空间 */
+  background-color: #17b3a3;
+  /* 横线颜色 */
+  margin-top: 15px;
+  /* 在公告和横线之间添加一些空间 */
+  margin-bottom: 15px;
+  /* 在横线和下一条公告之间添加一些空间 */
 }
 
 .announcement-list li:last-child::after {
@@ -388,7 +535,8 @@ export default {
 .announcement-item .text-container {
   display: flex;
   flex-direction: column;
-  justify-content: center; /* 确保内容垂直居中 */
+  justify-content: center;
+  /* 确保内容垂直居中 */
 }
 
 
@@ -442,4 +590,3 @@ export default {
   color: #fff;
 }
 </style>
-
