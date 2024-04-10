@@ -1,106 +1,160 @@
 const express = require('express');
-const bcrypt = require('bcrypt');
+const {pool} = require('../../config/db'); 
 const authenticate = require('../../middlewares/authenticate');
 const router = express.Router();
-const {pool} = require('../../config/db'); 
+const bcrypt = require('bcrypt');
+const logger = require('../../logger/Logger');
 
-
-// 获取所有账号信息（员工和经理）
-router.get('/accounts', async (req, res) => {
+// 获取员工账号信息
+router.get('/employee_accounts', authenticate, async (req, res) => {
+    logger.log('Starting to process /employee_accounts request.');
     try {
-        const allAccounts = await pool.query(`
-            SELECT User_name, Password, 'employee' AS Type FROM employee_login
-            UNION
-            SELECT User_name, Password, 'manager' AS Type FROM manager_login`);
-        res.json(allAccounts);
+        const { username, userType } = req.user
+        console.log('userType', userType);
+        if (userType === 0) {
+            const results = await pool.query('SELECT User_name, Password FROM employee_login');
+            res.json({ code: 200, data: results[0] });
+        }
+        else if(userType === 1) {
+            const results = await pool.query('SELECT User_name, Password FROM manager_login WHERE User_name = ?', [username]);
+            res.json({ code: 200, data: results[0] });
+        }
+        else{
+            const results = await pool.query('SELECT User_name, Password FROM employee_login WHERE User_name = ?', [username]);
+            res.json({ code: 200, data: results[0] });
+        }
     } catch (err) {
-        res.status(500).json({ message: "数据库查询失败", error: err });
+        res.status(500).json({ error: err.message });
     }
 });
 
-// 添加账号信息
-router.post('/account', async (req, res) => {
-    const { username, password, type } = req.body;
+// 添加员工账号
+router.post('/employee_accounts', async (req, res) => {
+    const { username, password } = req.body;
     try {
-        if (type === 'employee') {
-            await pool.query("INSERT INTO employee_login (User_name, Password) VALUES (?, ?)", [username, password]);
-        } else if (type === 'manager') {
-            await pool.query("INSERT INTO manager_login (User_name, Password) VALUES (?, ?)", [username, password]);
-        }
-        res.json({ message: "账号添加成功" });
-    } catch (err) {
-        res.status(500).json({ message: "添加账号失败", error: err });
+        await pool.query("INSERT INTO employee_login (User_name, Password, User_type) VALUES (?, ?, 2)", [username, password]);
+        res.json({ code: 200, message: "员工账号添加成功" });
+        } catch (err) {
+        res.status(500).json({ code:404, message: "添加账号失败", error: err });
     }
 });
 
-// 更新账号密码
-router.put('/account', authenticate, async (req, res) => {
-    const { username, newPassword } = req.body;
-    let userType;
-
+// 更新员工密码
+router.put('/employee_accounts/:username', async (req, res) => {
+    const { username } = req.params;
+    const { password } = req.body;
     try {
-        // 从employee表获取请求更新密码的用户的类型
-        const userTypeResult = await pool.query(`
-            SELECT User_type FROM employee
-            WHERE Id = (SELECT Id FROM employee_login WHERE User_name = ?)
-            UNION
-            SELECT User_type FROM employee
-            WHERE Id = (SELECT Id FROM manager_login WHERE User_name = ?)
-            UNION
-            SELECT 0 AS User_type FROM admin WHERE User_name = ?`, 
-            [username, username, username]
-        );
-
-        if (userTypeResult.length > 0) {
-            userType = userTypeResult[0].User_type;
-        } else {
-            return res.status(404).json({ message: "用户不存在" });
+        const [results] = await pool.query('UPDATE employee_login SET Password = ? WHERE User_name = ?', [password, username]);
+        if (results.affectedRows === 0) {
+            return res.json({ code: 404, message: '员工不存在' });
         }
-
-        const requesterUsername = req.user.username; // 从身份验证中间件解析出的用户名
-        const requesterUserType = req.user.userType; // 从身份验证中间件解析出的用户类型
-
-        let table;
-        switch (userType) {
-            case 0:
-                table = 'admin';
-                break;
-            case 1:
-                table = 'manager_login';
-                break;
-            case 2:
-                table = 'employee_login';
-                break;
-            default:
-                return res.status(400).json({ message: '未知的用户类型' });
-        }
-
-        // 如果是管理员或者是用户尝试更新自己的密码
-        if (requesterUserType === 0 || (requesterUsername === username)) {
-            const hashedPassword = await bcrypt.hash(newPassword, 8);
-            await pool.query(`UPDATE ${table} SET Password = ? WHERE User_name = ?`, [hashedPassword, username]);
-            res.json({ code: 200, message: '密码更新成功' });
-        } else {
-            return res.status(403).json({ message: '无权限更新其他用户的密码' });
-        }
+        res.json({ code: 200, message: '员工密码更新成功' });
     } catch (err) {
-        res.status(500).json({ message: '服务器错误', error: err.message });
+        res.status(500).json({ error: err.message });
     }
 });
 
 
-// 删除账号
-router.delete('/account', async (req, res) => {
-    const { username, type } = req.query;
+// 员工升职
+router.delete('/employee_accounts/:username', async (req, res) => {
+    const { username } = req.params;  
     try {
-        if (type === 'employee') {
-            await pool.query("DELETE FROM employee_login WHERE User_name = ?", [username]);
-        } else if (type === 'manager') {
-            await pool.query("DELETE FROM manager_login WHERE User_name = ?", [username]);
-        }
-        res.json({ message: "账号删除成功" });
+        await pool.query("BEGIN");  // 开始事务
+        const insertManager = `
+            INSERT INTO manager (Id, Name, Gender, Age, Dept)
+            SELECT Id, Name, Gender, Age, Dept FROM employee WHERE Id = ?;
+        `;
+        await pool.query(insertManager, [username]);
+        const insertManagerLogin = `
+            INSERT INTO manager_login (User_name, Password, User_type)
+            SELECT User_name, Password, 1 FROM employee_login WHERE User_name = ?;
+        `;
+        await pool.query(insertManagerLogin, [username]);
+        const deleteEmployee = "DELETE FROM employee WHERE Id = ?";
+        await pool.query(deleteEmployee, [username]);
+        const deleteEmployeeLogin = "DELETE FROM employee_login WHERE User_name = ?";
+        await pool.query(deleteEmployeeLogin, [username]);
+        await pool.query("COMMIT");  // 提交事务
+        res.json({ code:200, message: "员工升职成功" });
     } catch (err) {
-        res.status(500).json({ message: "账号删除失败", error: err });
+        await pool.query("ROLLBACK");  // 回滚事务
+        res.status(500).json({ code:404, message: "员工升职失败", error: err });
+    }
+});
+
+// 获取经理账号信息
+router.get('/manager_accounts', authenticate, async (req, res) => {
+    logger.log('Starting to process /accounts request.');
+    try {
+        const { username, userType } = req.user
+        console.log('userType', userType);
+        if (userType === 0) {
+            const results = await pool.query('SELECT User_name, Password FROM manager_login');
+            res.json({ code: 200, data: results[0] });
+        }
+        else if(userType === 1) {
+            const results = await pool.query('SELECT User_name, Password FROM manager_login WHERE User_name = ?', [username]);
+            res.json({ code: 200, data: results[0] });
+        }
+        else{
+            const results = await pool.query('SELECT User_name, Password FROM employee_login WHERE User_name = ?', [username]);
+            res.json({ code: 200, data: results[0] });
+        }
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// 添加经理账号
+router.post('/manager_accounts', async (req, res) => {
+    const { username, password } = req.body;
+    try {
+        await pool.query("INSERT INTO manager_login (User_name, Password, User_type) VALUES (?, ?, 1)", [username, password]);
+        res.json({ code: 200, message: "经理账号添加成功" });
+        } catch (err) {
+        res.status(500).json({ code:404, message: "添加账号失败", error: err });
+    }
+});
+
+// 更新经理密码
+router.put('/manager_accounts/:username', async (req, res) => {
+    const { username } = req.params;
+    const { password } = req.body;
+    try {
+        const [results] = await pool.query('UPDATE manager_login SET Password = ? WHERE User_name = ?', [password, username]);
+        if (results.affectedRows === 0) {
+            return res.json({ code: 404, message: '经理不存在' });
+        }
+        res.json({ code: 200, message: '经理密码更新成功' });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// 经理降职
+router.delete('/manager_accounts/:username', async (req, res) => {
+    const { username } = req.params;  
+    try {
+        await pool.query("BEGIN");  // 开始事务
+        const insertEmployee = `
+            INSERT INTO employee (Id, Name, Gender, Age, Dept)
+            SELECT Id, Name, Gender, Age, Dept FROM manager WHERE Id = ?;
+        `;
+        await pool.query(insertEmployee, [username]);
+        const insertEmployeeLogin = `
+            INSERT INTO employee_login (User_name, Password, User_type)
+            SELECT User_name, Password, 2 FROM manager_login WHERE User_name = ?;
+        `;
+        await pool.query(insertEmployeeLogin, [username]);
+        const deleteManager = "DELETE FROM manager WHERE Id = ?";
+        await pool.query(deleteManager, [username]);
+        const deleteManagerLogin = "DELETE FROM manager_login WHERE User_name = ?";
+        await pool.query(deleteManagerLogin, [username]);
+        await pool.query("COMMIT");  // 提交事务
+        res.json({ code:200, message: "经理降职成功" });
+    } catch (err) {
+        await pool.query("ROLLBACK");  // 回滚事务
+        res.status(500).json({ code:404, message: "经理降职失败", error: err });
     }
 });
 

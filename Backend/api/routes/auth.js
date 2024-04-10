@@ -36,12 +36,21 @@ router.post('/login', async (req, res) => {
                 response.data.message = "管理员登陆成功";
                 response.data.menu = [ 
                         { path: '/home', name: 'home', label: '首页', icon: 's-home', url: 'Home/index' },
-                        { path: '/mall', name: 'mall', label: '账户管理', icon: 's-order', url: 'Mall/index' },
-                        { path: '/user', name: 'user', label: '信息管理', icon: 's-check', url: 'User/index' },
+                        { label: '账号管理', icon: 's-order', children: 
+                        [
+                          { path: '/mall1', name: 'mall1', label: '员工账号', icon: 'setting', url: 'Mall/index_acc_ad_em' },
+                          { path: '/mall2', name: 'mall2', label: '经理账号', icon: 'setting', url: 'Mall/index_acc_ad_ma' },
+                        ]
+                      },{ label: '信息管理', icon: 's-check', children: 
+                      [
+                        { path: '/user1', name: 'user1', label: '员工信息', icon: 'setting', url: 'User/index_info_em' },
+                        { path: '/user2', name: 'user2', label: '经理信息', icon: 'setting', url: 'User/index_info_ma' },
+                      ]
+                    },
                         { label: '其他', icon: 's-opportunity', children: 
                           [
                             { path: '/page1', name: 'page1', label: '页面1', icon: 'setting', url: 'Others/PageOne' },
-                            { path: '/page2', name: 'page2', label: '页面2', icon: 'setting', url: 'Others/PageTwo' }
+                            { path: '/page2', name: 'page2', label: '页面2', icon: 'setting', url: 'Others/PageTwo' },
                           ]
                         }
                 ];
@@ -50,8 +59,8 @@ router.post('/login', async (req, res) => {
                 response.data.message = "经理登陆成功";
                 response.data.menu = [ 
                     { path: '/home', name: 'home', label: '首页', icon: 's-home', url: 'Home/index' },
-                    { path: '/mall', name: 'mall', label: '账户管理', icon: 's-order', url: 'Mall/index' },
-                    { path: '/user', name: 'user', label: '信息管理', icon: 's-check', url: 'User/index' },
+                    { path: '/mall', name: 'mall', label: '账户管理', icon: 's-order', url: 'Mall/index_acc_ma' },
+                    { path: '/user', name: 'user', label: '信息管理', icon: 's-check', url: 'User/index_info_em' },
                     { label: '其他', icon: 's-opportunity', children: 
                       [
                         { path: '/page1', name: 'page1', label: '页面1', icon: 'setting', url: 'Others/PageOne' },
@@ -64,7 +73,7 @@ router.post('/login', async (req, res) => {
                 response.data.message = "员工登陆成功";
                 response.data.menu = [ 
                     { path: '/home', name: 'home', label: '首页', icon: 's-home', url: 'Home/index' },
-                    { path: '/mall', name: 'mall', label: '账户管理', icon: 's-order', url: 'Mall/index' },
+                    { path: '/mall', name: 'mall', label: '账户管理', icon: 's-order', url: 'Mall/index_acc_em' },
                     { label: '其他', icon: 's-opportunity', children: 
                       [
                         { path: '/page1', name: 'page1', label: '页面1', icon: 'setting', url: 'Others/PageOne' },

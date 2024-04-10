@@ -109,46 +109,149 @@ export const deleteEmployee = async (id) => {
   }
 };
 
-// 获取所有账号信息（员工和经理）函数
-export const getAccounts = async () => {
+// 获取经理列表函数
+export const getManagers = async () => {
   try {
-    const response = await axios.get('/accounts');
+    const token = localStorage.getItem('token');
+    const response = await axios.get('/managers', { 
+      headers: { 
+        Authorization: `Bearer ${token}` 
+      } 
+    });
     return response.data;
   } catch (error) {
-    console.error('Get accounts error:', error.response.data);
+    console.error('Get managers error:', error.response.data);
     throw error;
   }
 };
 
-// 添加账号信息函数
-export const addAccount = async (username, password, type) => {
+// 添加经理函数
+export const addManager = async (id, name, gender, age, dept) => {
   try {
-    const response = await axios.post('/account', { username, password, type });
+    const response = await axios.post('/managers', { id, name, gender, age, dept });
     return response.data;
   } catch (error) {
-    console.error('Add account error:', error.response.data);
+    console.error('Add manager error:', error.response.data);
     throw error;
   }
 };
 
-// 更新账号密码函数
-export const updateAccountPassword = async (username, newPassword) => {
+// 更新经理信息函数
+export const updateManager  = async (id, name, gender, age, dept) => {
   try {
-    const response = await axios.put('/account', { username, newPassword });
+    const response = await axios.put(`/managers/${id}`, { name, gender, age, dept });
     return response.data;
   } catch (error) {
-    console.error('Update account password error:', error.response.data);
+    console.error('Update manager error:', error.response.data);
     throw error;
   }
 };
 
-// 删除账号函数
-export const deleteAccount = async (username, type) => {
+// 删除经理函数
+export const deleteManager  = async (id) => {
   try {
-    const response = await axios.delete('/account', { params: { username, type } });
+    const response = await axios.delete(`/managers/${id}`);
     return response.data;
   } catch (error) {
-    console.error('Delete account error:', error.response.data);
+    console.error('Delete manager error:', error.response.data);
+    throw error;
+  }
+};
+
+// 获取员工账号信息函数
+export const getEmployeeAccounts = async () => {
+  try {
+    const token = localStorage.getItem('token');    
+    const response = await axios.get('/employee_accounts',{
+      headers: { 
+        Authorization: `Bearer ${token}` 
+      } 
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Get employee accounts error:', error.response.data);
+    throw error;
+  }
+};
+
+// 添加员工账号函数
+export const addEmployeeAccount = async (username, password) => {
+  try {
+    const response = await axios.post('/employee_accounts', { username, password });
+    return response.data;
+  } catch (error) {
+    console.error('Add employee account error:', error.response.data);
+    throw error;
+  }
+};
+
+// 更新员工密码函数
+export const updateEmployeePassword = async (username, password) => {
+  try {
+    const response = await axios.put(`/employee_accounts/${username}`, { password });
+    return response.data;
+  } catch (error) {
+    console.error('Update employee account password error:', error.response.data);
+    throw error;
+  }
+};
+
+// 员工账号升职函数
+export const deleteEmployeeUp = async (username) => {
+  try {
+    const response = await axios.delete(`/employee_accounts/${username}`);
+    return response.data;
+  } catch (error) {
+    console.error('Delete employee account error:', error.response.data);
+    throw error;
+  }
+};
+
+// 获取经理账号信息函数
+export const getManagerAccounts = async () => {
+  try {
+    const token = localStorage.getItem('token');    
+    const response = await axios.get('/manager_accounts',{
+      headers: { 
+        Authorization: `Bearer ${token}` 
+      } 
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Get manager accounts error:', error.response.data);
+    throw error;
+  }
+};
+
+// 添加经理账号函数
+export const addManagerAccount = async (username, password) => {
+  try {
+    const response = await axios.post('/manager_accounts', { username, password });
+    return response.data;
+  } catch (error) {
+    console.error('Add manager account error:', error.response.data);
+    throw error;
+  }
+};
+
+// 更新经理密码函数
+export const updateManagerPassword = async (username, password) => {
+  try {
+    const response = await axios.put(`/manager_accounts/${username}`, { password });
+    return response.data;
+  } catch (error) {
+    console.error('Update manager account password error:', error.response.data);
+    throw error;
+  }
+};
+
+// 经理账号降职函数
+export const deleteManagerDown = async (username) => {
+  try {
+    const response = await axios.delete(`/manager_accounts/${username}`);
+    return response.data;
+  } catch (error) {
+    console.error('Delete manager account error:', error.response.data);
     throw error;
   }
 };
