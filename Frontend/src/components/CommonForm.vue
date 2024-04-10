@@ -7,6 +7,13 @@
                 v-model="form_data[item.model]"
             >
             </el-input>
+            <el-input
+                v-if="item.type === 'password'"
+                :type="'password'"
+                :placeholder="'请输入'+item.label"
+                v-model="form_data[item.model]"
+            >
+            </el-input>
             <el-switch
                 v-if="item.type === 'switch'"
                 v-model="form_data[item.model]"
