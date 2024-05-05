@@ -46,7 +46,7 @@
 <script>
     import CommonForm from '@/components/CommonForm'
     import CommonTable from '@/components/CommonTable'
-    import { getManagers, addManager, updateManager, deleteManager } from '@/api/axios';
+    import { getManagers, addManager, updateManager, deleteManager, deleteEmployee } from '@/api/axios';
 
     export default {
         name:'User',
@@ -60,40 +60,55 @@
                 isShow: false,
                 formConfig: [
                     {
-                        label: '工号',
+                        label: 'Id',
                         type: 'input',
                         model: 'id',
                     },
                     {
-                        label: '姓名',
+                        label: 'Name',
                         type: 'input',
                         model: 'name',
                     },
                     {
-                        label: '性别',
+                        label: 'Gender',
                         type: 'select',
                         model: 'gender',
                         opts: [
                             {
-                                label: '男',
-                                value: '男',
+                                label: 'Male',
+                                value: 'Male',
                             },
                             {
-                                label: '女',
-                                value: '女',
+                                label: 'Female',
+                                value: 'Female',
                             },
                         ],
                     },
                     {
-                        label: '年龄',
+                        label: 'Age',
                         type: 'input',
                         model: 'age',
                     },
 
                     {
-                        label: '部门',
+                        label: 'Dept',
                         type: 'input',
                         model: 'dept',
+                    },
+                    {
+                        label: 'type',
+                        type: 'select',
+                        model: 'type',
+                        opts: [
+                            {
+                                label: 'Manager',
+                                value: 'Manager',
+                            },
+                            {
+                                label: 'Employee',
+                                value: 'Employee',
+                            },
+                        ],
                     },
                 ],
                 formData: {
@@ -102,6 +117,7 @@
                     gender: '',
                     age: '',
                     dept: '',
+                    type: '',
                 },
                 searchFormConfig: [
                     {
@@ -116,23 +132,27 @@
                 tableConfig: [
                     {
                         prop: 'Id',
-                        label: '工号',
+                        label: 'Id',
                     },
                     {
                         prop: 'Name',
-                        label: '姓名',
+                        label: 'Name',
                     },
                     {
                         prop: 'Gender',
-                        label: '性别',
+                        label: 'Gender',
                     },
                     {
                         prop: 'Age',
-                        label: '年龄',
+                        label: 'Age',
                     },
                     {
                         prop: 'Dept',
-                        label: '部门',
+                        label: 'Dept',
+                    },
+                    {
+                        prop: 'type',
+                        label: 'type',
                     },
                 ],
                 tableData: [],
@@ -145,8 +165,8 @@
         methods: {
             confirm() {
                 if(this.operateType === 'edit') {
-                    const { id, name, gender, age, dept } = this.formData;
-                    updateManager( id, name, gender, age, dept ).then(res => {
+                    const { id, name, gender, age, dept, type } = this.formData;
+                    updateManager( id, name, gender, age, dept, type ).then(res => {
                         this.isShow = false;
                         const flag = res.code === 200 ? 'success' : 'error';
                         this.getList();
@@ -156,8 +176,8 @@
                         });
                     });
                 } else {
-                    const { id, name, gender, age, dept } = this.formData;
-                    addManager( id, name, gender, age, dept ).then(res => {
+                    const { id, name, gender, age, dept, type } = this.formData;
+                    addManager( id, name, gender, age, dept, type ).then(res => {
                         this.isShow = false;
                         const flag = res.code === 200 ? 'success' : 'error';
                         this.getList();
@@ -177,6 +197,7 @@
                     gender: '',
                     age: '',
                     dept: '',
+                    type: '',
                 };
             },
             editUser(row) {
@@ -185,30 +206,49 @@
                 this.formData = {...row};
             },
             delUser(row) {
-                this.$confirm('此操作将永久删除该用户, 是否继续?', '提示', {
-                    confirmButtonText: '确定',
-                    cancelButtonText: '取消',
+                const action = row.type === 'Employee' ? 'Delete employee' : 'Delete manager';
+                this.$confirm(`This operation will be permanently${action}, confirm or concel?`, 'Warning', {
+                    confirmButtonText: 'confirm',
+                    cancelButtonText: 'concel',
                     type: 'warning'
                 }).then(() => {
                     const id = row.Id;
-                    console.log('row',row)
-                    console.log('id',id)
-                    deleteManager(id
-                    ).then(() => {
+                    console.log('row', row)
+                    console.log('id', id)
+                    if (row.type === 'Employee') {
+                        deleteEmployee(id).then(() => {
+                            this.$message({
+                            type: 'success',
+                            message: 'Delete employee successfully!'
+                        });
+                        this.getList();
+                    }).catch(err => {
+                        this.$message({
+                            type: 'error',
+                            message: 'Failure: ' + err.message
+                        });
+                    });
+                } else if (row.type === 'Manager') {
+                    deleteManager(id).then(() => {
                         this.$message({
                             type: 'success',
-                            message: '删除成功!'
+                            message: 'Delete manager successfully!'
                         });
-                       this.getList();
-                    })
-                }).catch((err) => {
+                        this.getList();
+                    }).catch(err => {
                         this.$message({
-                            type: 'info',
-                            message: '已取消删除'
+                            type: 'error',
+                            message: 'Failure: ' + err.message
                         });
-                        console.log(err)
-                        this.getList(); 
                     });
+                }
+                }).catch((err) => {
+                    this.$message({
+                        type: 'info',
+                        message: 'cancel'
+                    });
+                    console.log(err);
+                });
             },
             getList(name = '') {
                 this.pageConfig.loading = true;

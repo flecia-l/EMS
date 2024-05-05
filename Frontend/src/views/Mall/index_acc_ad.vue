@@ -14,21 +14,21 @@
                 </common-form>
 
                 <div slot="footer" class="dialog-footer">
-                    <el-button @click="isShow=false;isChange=false">取 消</el-button>
-                    <el-button type="primary" @click="confirm">确 定</el-button>
+                    <el-button @click="isShow=false;isChange=false">取消</el-button>
+                    <el-button type="primary" @click="confirm">确认</el-button>
                 </div>
             </el-dialog>
         </div>
 
         <div class="manage-header">
-            <el-button type="primary" @click="addAccount">+ 新增</el-button>
+            <el-button type="primary" @click="addAccount">+ 添加</el-button>
             <common-form 
                 :formConfig="searchFormConfig" 
                 :formData="searchFormData"
                 :inline="true"
                 ref="form"
             >
-                <el-button type="primary" @click="getList(searchFormData.keyword)">搜索</el-button>
+                <el-button type="primary" @click="getList(searchFormData.keyword)">查找</el-button>
             </common-form>
         </div>
         <common-table
@@ -45,8 +45,8 @@
 
 <script>
     import CommonForm from '@/components/CommonForm'
-    import CommonTable from '@/components/CommonTable_ad'
-    import { getEmployeeAccounts, addEmployeeAccount, updateEmployeePassword, deleteEmployeeUp, deleteManagerDown } from '@/api/axios';
+    import CommonTable from '@/components/CommonTable_acc'
+    import { getAccounts, addAccount, updateEmployeePassword, deleteEmployeeUp, deleteManagerDown } from '@/api/axios';
 
     export default {
         name:'Account',
@@ -60,27 +60,27 @@
                 isShow: false,
                 formConfig: [
                     {
-                        label: '工号',
+                        label: 'Id',
                         type: 'input',
                         model: 'username',
                     },
                     {
-                        label: '密码',
+                        label: 'Password',
                         type: 'input',
                         model: 'password',
                     },
                     {
-                        label: '用户类型',
+                        label: 'type',
                         type: 'select',
                         model: 'type',
                         opts: [
                             {
-                                label: '经理',
-                                value: 'manager',
+                                label: 'Manager',
+                                value: 'Manager',
                             },
                             {
-                                label: '职员',
-                                value: 'employee',
+                                label: 'Employee',
+                                value: 'Employee',
                             },
                         ],
                     },
@@ -103,15 +103,11 @@
                 tableConfig: [
                     {
                         prop: 'User_name',
-                        label: '工号',
+                        label: 'Id',
                     },
                     {
-                        prop: 'Password',
-                        label: '密码',
-                    },
-                    {
-                        prop: 'User_type',
-                        label: '用户类型',
+                        prop: 'type',
+                        label: 'type',
                     },
                 ],
                 tableData: [],
@@ -124,8 +120,8 @@
         methods: {
             confirm() {
                 if(this.operateType === 'edit') {
-                    const { username, password} = this.formData;
-                    updateEmployeePassword( username, password).then(res => {
+                    const { username, password, type} = this.formData;
+                    updateEmployeePassword( username, password, type).then(res => {
                         this.isShow = false;
                         const flag = res.code === 200 ? 'success' : 'error';
                         this.getList();
@@ -136,7 +132,7 @@
                     });
                 } else {
                     const { username, password, type } = this.formData;
-                    addEmployeeAccount( username, password, type ).then(res => {
+                    addAccount( username, password, type ).then(res => {
                         this.isShow = false;
                         const flag = res.code === 200 ? 'success' : 'error';
                         this.getList();
@@ -162,48 +158,48 @@
                 this.formData = {...row};
             },
             deleteAccount(row) {
-                const action = row.User_type === 2 ? '升职经理' : '降职员工';
-                this.$confirm(`此操作将该用户${action}, 是否继续?`, '提示', {
-                    confirmButtonText: '确定',
-                    cancelButtonText: '取消',
+                const action = row.type === 'Employee' ? 'Promotion' : 'Demotion';
+                this.$confirm(`This action puts the user${action}, confirm or cancel ?`, 'Warning', {
+                    confirmButtonText: 'confirm!',
+                    cancelButtonText: 'cancel!',
                     type: 'warning'
                 }).then(() => {
                     const username = row.User_name;
                     console.log('row',row)
                     console.log('username',username)
-                    console.log('usertype',row.User_type);
+                    console.log('type',row.type);
 
-                    if (row.User_type === 2) {
+                    if (row.type === 'Employee') {
                         deleteEmployeeUp(username).then(() => {
                             this.$message({
                                 type: 'success',
-                                message: '升职成功!'
+                                message: 'Employee promotion successfully!'
                             });
                             this.getList();
                         }).catch(err => {
                             this.$message({
                                 type: 'error',
-                                 message: '操作失败' + err.message
+                                 message: 'Failure' + err.message
                             });
                         });
-                    }else if (row.User_type === 1) { 
+                    }else if (row.type === 'Manager') { 
                         deleteManagerDown(username).then(() => {
                             this.$message({
                                 type: 'success',
-                                message: '降职成功!'
+                                message: 'Manager deomotion successfully!'
                             });
                             this.getList();
                         }).catch(err => {
                             this.$message({
                                 type: 'error',
-                                message: '操作失败: ' + err.message
+                                message: 'Failure: ' + err.message
                             });
                         });
                     } 
                 }).catch((err) => {
                     this.$message({
                         type: 'info',
-                        message: '已取消操作'
+                        message: 'cancel'
                     });
                     console.log(err);
                 });
@@ -211,7 +207,7 @@
             getList(name = '') {
                 this.pageConfig.loading = true;
                 this.pageConfig.page = name ? 1 : this.pageConfig.page;
-                getEmployeeAccounts().then(res => {
+                getAccounts().then(res => {
                     this.tableData = res.data
                     console.log(res.data)
                     this.tableConfig.total = res.data.count

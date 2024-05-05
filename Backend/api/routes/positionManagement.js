@@ -23,10 +23,10 @@ router.delete('/employee_accounts/:username', async (req, res) => {
         const deleteEmployeeLogin = "DELETE FROM employee_login WHERE User_name = ?";
         await pool.query(deleteEmployeeLogin, [username]);
         await pool.query("COMMIT");  // 提交事务
-        res.json({ code:200, message: "员工升职成功" });
+        res.json({ code:200, message: "Employee is promoted successfully!" });
     } catch (err) {
         await pool.query("ROLLBACK");  // 回滚事务
-        res.status(500).json({ code:404, message: "员工升职失败", error: err });
+        res.status(500).json({ code:404, message: "Promotion failure!", error: err });
     }
 });
 
@@ -50,10 +50,10 @@ router.delete('/manager_accounts/:username', async (req, res) => {
         const deleteManagerLogin = "DELETE FROM manager_login WHERE User_name = ?";
         await pool.query(deleteManagerLogin, [username]);
         await pool.query("COMMIT");  // 提交事务
-        res.json({ code:200, message: "经理降职成功" });
+        res.json({ code:200, message: "Manager is demoted successfully!" });
     } catch (err) {
         await pool.query("ROLLBACK");  // 回滚事务
-        res.status(500).json({ code:404, message: "经理降职失败", error: err });
+        res.status(500).json({ code:404, message: "Demotion failure!", error: err });
     }
 });
 

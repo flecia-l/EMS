@@ -14,8 +14,8 @@
                 </common-form>
 
                 <div slot="footer" class="dialog-footer">
-                    <el-button @click="isShow=false;isChange=false">取 消</el-button>
-                    <el-button type="primary" @click="confirm">确 定</el-button>
+                    <el-button @click="isShow=false;isChange=false">取消</el-button>
+                    <el-button type="primary" @click="confirm">确认</el-button>
                 </div>
             </el-dialog>
         </div>
@@ -28,7 +28,7 @@
                 :inline="true"
                 ref="form"
             >
-                <el-button type="primary" @click="getList(searchFormData.keyword)">搜索</el-button>
+                <el-button type="primary" @click="getList(searchFormData.keyword)">查找</el-button>
             </common-form>
         </div>
         <common-table
@@ -45,7 +45,7 @@
 <script>
     import CommonForm from '@/components/CommonForm'
     import CommonTable from '@/components/CommonTable_acc_em_and_ma'
-    import { getEmployeeAccounts, addEmployeeAccount, updateEmployeePassword, deleteEmployeeUp } from '@/api/axios';
+    import { getAccounts, addAccount, updateEmployeePassword } from '@/api/axios';
 
     export default {
         name:'Account',
@@ -59,19 +59,31 @@
                 isShow: false,
                 formConfig: [
                     {
-                        label: '工号',
+                        label: 'Id',
                         type: 'input',
                         model: 'username',
                     },
                     {
-                        label: '密码',
+                        label: 'Password',
                         type: 'input',
                         model: 'password',
+                    },
+                    {
+                        label: 'type',
+                        type: 'select',
+                        model: 'type',
+                        opts: [
+                            {
+                                label: 'Employee',
+                                value: 'Employee',
+                            },
+                        ],
                     },
                 ],
                 formData: {
                     username: '',
                     password: '',
+                    type:'Employee',
                 },
                 searchFormConfig: [
                     {
@@ -86,11 +98,11 @@
                 tableConfig: [
                     {
                         prop: 'User_name',
-                        label: '工号',
+                        label: 'Id',
                     },
                     {
-                        prop: 'Password',
-                        label: '密码',
+                        prop: 'type',
+                        label: 'type',
                     },
                 ],
                 tableData: [],
@@ -103,8 +115,8 @@
         methods: {
             confirm() {
                 if(this.operateType === 'edit') {
-                    const { username, password } = this.formData;
-                    updateEmployeePassword( username, password ).then(res => {
+                    const { username, password, type } = this.formData;
+                    updateEmployeePassword( username, password, type ).then(res => {
                         this.isShow = false;
                         const flag = res.code === 200 ? 'success' : 'error';
                         this.getList();
@@ -115,7 +127,7 @@
                     });
                 } else {
                     const { username, password } = this.formData;
-                    addEmployeeAccount( username, password ).then(res => {
+                    addAccount( username, password ).then(res => {
                         this.isShow = false;
                         const flag = res.code === 200 ? 'success' : 'error';
                         this.getList();
@@ -139,36 +151,10 @@
                 this.isShow = true;
                 this.formData = {...row};
             },
-            deleteAccount(row) {
-                this.$confirm('此操作将该用户升职为经理, 是否继续?', '提示', {
-                    confirmButtonText: '确定',
-                    cancelButtonText: '取消',
-                    type: 'warning'
-                }).then(() => {
-                    const username = row.User_name;
-                    console.log('row',row)
-                    console.log('username',username)
-                    deleteEmployeeUp(username
-                    ).then(() => {
-                        this.$message({
-                            type: 'success',
-                            message: '升职成功!'
-                        });
-                       this.getList();
-                    })
-                }).catch((err) => {
-                        this.$message({
-                            type: 'info',
-                            message: '已取消升职'
-                        });
-                        console.log(err)
-                        this.getList(); 
-                    });
-            },
             getList(name = '') {
                 this.pageConfig.loading = true;
                 this.pageConfig.page = name ? 1 : this.pageConfig.page;
-                getEmployeeAccounts().then(res => {
+                getAccounts().then(res => {
                     this.tableData = res.data
                     console.log(res.data)
                     this.tableConfig.total = res.data.count

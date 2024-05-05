@@ -11,12 +11,12 @@ router.post('/login', async (req, res) => {
         // 检查用户是否存在
         const userRes = await pool.query('SELECT * FROM admin WHERE User_name = ? UNION SELECT * FROM employee_login WHERE User_name = ? UNION SELECT * FROM manager_login WHERE User_name = ?', [username, username, username]);
         if (userRes.rowCount === 0) {
-            return res.status(404).json({ message: "账号不存在" });
+            return res.status(404).json({ message: "Account do not exist!" });
         }
         // 验证密码是否正确
         const passRes = await pool.query('SELECT * FROM admin WHERE User_name = ? AND Password = ? UNION SELECT * FROM employee_login WHERE User_name = ? AND Password = ? UNION SELECT * FROM manager_login WHERE User_name = ? AND Password = ?', [username, password, username, password, username, password]);
         if (passRes.rowCount === 0) {
-            return res.status(401).json({ message: "密码错误" });
+            return res.status(401).json({ message: "Wrong password" });
         }
         // 根据不同的登陆身份返回不同的响应
         const userType = passRes[0][0].User_type; // 假设有一个usertype字段标明用户类型
@@ -33,20 +33,11 @@ router.post('/login', async (req, res) => {
         console.log('response', response);
         switch(userType) {
             case 0: // 管理员
-                response.data.message = "管理员登陆成功";
+                response.data.message = "Admin";
                 response.data.menu = [ 
-                        { path: '/home', name: 'home', label: '首页', icon: 's-home', url: 'Home/index' },
-                        { label: '账号管理', icon: 's-order', children: 
-                        [
-                          { path: '/mall1', name: 'mall1', label: '员工账号', icon: 'setting', url: 'Mall/index_acc_ad_em' },
-                          { path: '/mall2', name: 'mall2', label: '经理账号', icon: 'setting', url: 'Mall/index_acc_ad_ma' },
-                        ]
-                      },{ label: '信息管理', icon: 's-check', children: 
-                      [
-                        { path: '/user1', name: 'user1', label: '员工信息', icon: 'setting', url: 'User/index_info_em' },
-                        { path: '/user2', name: 'user2', label: '经理信息', icon: 'setting', url: 'User/index_info_ma' },
-                      ]
-                    },
+                        { path: '/home', name: 'home', label: 'homepage', icon: 's-home', url: 'Home/index' },
+                        { path: '/mall1', name: 'mall1', label: 'Account', icon: 's-order', url: 'Mall/index_acc_ad' },
+                        { path: '/user1', name: 'user1', label: 'Information', icon: 's-check', url: 'User/index_info_ma' },
                         { label: '其他', icon: 's-opportunity', children: 
                           [
                             { path: '/page1', name: 'page1', label: '页面1', icon: 'setting', url: 'Others/PageOne' },
@@ -56,11 +47,11 @@ router.post('/login', async (req, res) => {
                 ];
             break;
             case 1: // 经理
-                response.data.message = "经理登陆成功";
+                response.data.message = "Manager";
                 response.data.menu = [ 
-                    { path: '/home', name: 'home', label: '首页', icon: 's-home', url: 'Home/index' },
-                    { path: '/mall', name: 'mall', label: '账户管理', icon: 's-order', url: 'Mall/index_acc_ma' },
-                    { path: '/user', name: 'user', label: '信息管理', icon: 's-check', url: 'User/index_info_em' },
+                    { path: '/home', name: 'home', label: 'homepage', icon: 's-home', url: 'Home/index' },
+                    { path: '/mall2', name: 'mall2', label: 'account', icon: 's-order', url: 'Mall/index_acc_ma' },
+                    { path: '/user2', name: 'user2', label: 'Information', icon: 's-check', url: 'User/index_info_em' },
                     { label: '其他', icon: 's-opportunity', children: 
                       [
                         { path: '/page1', name: 'page1', label: '页面1', icon: 'setting', url: 'Others/PageOne' },
@@ -70,10 +61,10 @@ router.post('/login', async (req, res) => {
                 ];
             break;
             case 2: // 员工
-                response.data.message = "员工登陆成功";
+                response.data.message = "Employee";
                 response.data.menu = [ 
-                    { path: '/home', name: 'home', label: '首页', icon: 's-home', url: 'Home/index' },
-                    { path: '/mall', name: 'mall', label: '账户管理', icon: 's-order', url: 'Mall/index_acc_em' },
+                    { path: '/home', name: 'home', label: 'homepage', icon: 's-home', url: 'Home/index' },
+                    { path: '/mall3', name: 'mall3', label: 'account', icon: 's-order', url: 'Mall/index_acc_em' },
                     { label: '其他', icon: 's-opportunity', children: 
                       [
                         { path: '/page1', name: 'page1', label: '页面1', icon: 'setting', url: 'Others/PageOne' },
