@@ -15,7 +15,9 @@
             <el-table-column label="操作" min-width="180">
                 <template slot-scope="scope">
                     <el-button size="mini" @click="handleEdit(scope.row)">编辑</el-button>
-                    <el-button size="mini" @click="handleDelete(scope.row)" type="danger">删除</el-button>
+                    <el-button size="mini" @click="handleDelete(scope.row)" type = "danger">
+                        <slot name = "edit_button" :row="scope.row">删除</slot>
+                    </el-button>
                 </template>
             </el-table-column>
         </el-table>

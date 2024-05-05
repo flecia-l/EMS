@@ -10,6 +10,7 @@ app.use(cors());
 const authRoutes = require('./api/routes/auth.js'); 
 const infoManagementRoutes = require('./api/routes/infoManagement');
 const accountManagementRoutes = require('./api/routes/accountManagement');
+const positionManagementRoutes = require('./api/routes/positionManagement');
 
 // 使用 JSON 中间件解析请求体
 app.use(express.json());
@@ -18,6 +19,7 @@ app.use(express.json());
 app.use('/api', authRoutes);
 app.use('/api', infoManagementRoutes);
 app.use('/api', accountManagementRoutes);
+app.use('/api', positionManagementRoutes);
 
 // 静态文件服务（可选，如果你的后端还需要提供静态文件服务的话）
 // app.use(express.static('public'));

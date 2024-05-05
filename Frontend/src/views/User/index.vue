@@ -89,12 +89,26 @@
                         type: 'input',
                         model: 'age',
                     },
-
                     {
                         label: '部门',
                         type: 'input',
                         model: 'dept',
                     },
+                    {
+                        label: '职位',
+                        type: 'select',
+                        model: 'type',
+                        opts: [
+                            {
+                                label: '员工',
+                                value: 'Employee',
+                            },
+                            {
+                                label: '经理',
+                                value: 'Manager',
+                            },
+                        ],
+                    }
                 ],
                 formData: {
                     id: '',
@@ -102,6 +116,7 @@
                     gender: '',
                     age: '',
                     dept: '',
+                    type: ''
                 },
                 searchFormConfig: [
                     {
@@ -134,6 +149,10 @@
                         prop: 'Dept',
                         label: '部门',
                     },
+                    {
+                        prop: 'Type',
+                        label: '职位',
+                    }
                 ],
                 tableData: [],
                 pageConfig: {
@@ -145,8 +164,8 @@
         methods: {
             confirm() {
                 if(this.operateType === 'edit') {
-                    const { id, name, gender, age, dept } = this.formData;
-                    updateEmployee( id, name, gender, age, dept ).then(res => {
+                    const { id, name, gender, age, dept, type } = this.formData;
+                    updateEmployee( id, name, gender, age, dept, type ).then(res => {
                         this.isShow = false;
                         const flag = res.code === 200 ? 'success' : 'error';
                         this.getList();
@@ -156,8 +175,8 @@
                         });
                     });
                 } else {
-                    const { id, name, gender, age, dept } = this.formData;
-                    addEmployee( id, name, gender, age, dept ).then(res => {
+                    const { id, name, gender, age, dept, type } = this.formData;
+                    addEmployee( id, name, gender, age, dept, type ).then(res => {
                         this.isShow = false;
                         const flag = res.code === 200 ? 'success' : 'error';
                         this.getList();
@@ -177,6 +196,7 @@
                     gender: '',
                     age: '',
                     dept: '',
+                    type: ''
                 };
             },
             editUser(row) {
