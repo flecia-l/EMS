@@ -29,7 +29,14 @@ class Logger {
     error(message) {
         this.logger.error(message);
     }
+
+    static getInstance() {
+        if (!Logger.instance) {
+            Logger.instance = new Logger();
+        }
+        return Logger.instance;
+    }
 }
 
-const loggerInstance = new Logger();
+const loggerInstance = Logger.getInstance();
 module.exports = loggerInstance;

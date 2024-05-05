@@ -18,7 +18,7 @@
 
 const mysql = require('mysql2/promise');
 const configManager = require('./ConfigManager');
-const dbConfig = configManager.get('database');
+const dbConfig = configManager.getConfig('database');
 
 class Database {
     constructor() {
@@ -34,7 +34,13 @@ class Database {
             throw err;
         }
     }
+    static getInstance() {
+        if (!Database.instance) {
+            Database.instance = new Database();
+        }
+        return Database.instance;
+    }
 }
 
-const databaseInstance = new Database();
+const databaseInstance = Database.getInstance();
 module.exports = databaseInstance;
