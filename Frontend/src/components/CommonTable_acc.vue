@@ -15,6 +15,7 @@
             <el-table-column label="操作" min-width="180">
                 <template slot-scope="scope">
                     <el-button size="mini" @click="handleEdit(scope.row)">编辑</el-button>
+                    <el-button size="mini" @click="handleDelete(scope.row)" type="danger">职位改变</el-button>
                 </template>
             </el-table-column>
         </el-table>
@@ -49,6 +50,9 @@
         methods: {
             handleEdit(row) {
                 this.$emit('edit',row);
+            },
+            handleDelete(row) {
+                this.$emit('del',row);
             },
             changePage(page) {
                 this.$emit('changePage', page);

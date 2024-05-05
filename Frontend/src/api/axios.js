@@ -64,7 +64,7 @@ export const loginPermission = async (username, password) => {
 export const getEmployees = async () => {
   try {
     const token = localStorage.getItem('token');
-    const response = await axios.get('/employees', { 
+    const response = await axios.get('/employee', { 
       headers: { 
         Authorization: `Bearer ${token}` 
       } 
@@ -77,9 +77,9 @@ export const getEmployees = async () => {
 };
 
 // 添加员工函数
-export const addEmployee = async (id, name, gender, age, dept) => {
+export const addEmployee = async (id, name, gender, age, dept, type) => {
   try {
-    const response = await axios.post('/employees', { id, name, gender, age, dept });
+    const response = await axios.post('/employee', { id, name, gender, age, dept, type });
     return response.data;
   } catch (error) {
     console.error('Add employee error:', error.response.data);
@@ -88,9 +88,9 @@ export const addEmployee = async (id, name, gender, age, dept) => {
 };
 
 // 更新员工信息函数
-export const updateEmployee = async (id, name, gender, age, dept) => {
+export const updateEmployee = async (id, name, gender, age, dept, type) => {
   try {
-    const response = await axios.put(`/employees/${id}`, { name, gender, age, dept });
+    const response = await axios.put(`/employees/${id}`, { name, gender, age, dept, type });
     return response.data;
   } catch (error) {
     console.error('Update employee error:', error.response.data);
@@ -101,7 +101,12 @@ export const updateEmployee = async (id, name, gender, age, dept) => {
 // 删除员工函数
 export const deleteEmployee = async (id) => {
   try {
-    const response = await axios.delete(`/employees/${id}`);
+    const token = localStorage.getItem('token');
+    const response = await axios.delete(`/employees/${id}`,{
+      headers: { 
+        Authorization: `Bearer ${token}` 
+      } 
+    });
     return response.data;
   } catch (error) {
     console.error('Delete employee error:', error.response.data);
@@ -113,22 +118,22 @@ export const deleteEmployee = async (id) => {
 export const getManagers = async () => {
   try {
     const token = localStorage.getItem('token');
-    const response = await axios.get('/managers', { 
+    const response = await axios.get('/employee', { 
       headers: { 
         Authorization: `Bearer ${token}` 
       } 
     });
     return response.data;
   } catch (error) {
-    console.error('Get managers error:', error.response.data);
+    console.error('Get employees error:', error.response.data);
     throw error;
   }
 };
 
 // 添加经理函数
-export const addManager = async (id, name, gender, age, dept) => {
+export const addManager = async (id, name, gender, age, dept, type) => {
   try {
-    const response = await axios.post('/managers', { id, name, gender, age, dept });
+    const response = await axios.post('/employee', { id, name, gender, age, dept, type });
     return response.data;
   } catch (error) {
     console.error('Add manager error:', error.response.data);
@@ -137,9 +142,9 @@ export const addManager = async (id, name, gender, age, dept) => {
 };
 
 // 更新经理信息函数
-export const updateManager  = async (id, name, gender, age, dept) => {
+export const updateManager  = async (id, name, gender, age, dept, type) => {
   try {
-    const response = await axios.put(`/managers/${id}`, { name, gender, age, dept });
+    const response = await axios.put(`/employees/${id}`, { name, gender, age, dept, type });
     return response.data;
   } catch (error) {
     console.error('Update manager error:', error.response.data);
@@ -150,7 +155,12 @@ export const updateManager  = async (id, name, gender, age, dept) => {
 // 删除经理函数
 export const deleteManager  = async (id) => {
   try {
-    const response = await axios.delete(`/managers/${id}`);
+    const token = localStorage.getItem('token');
+    const response = await axios.delete(`/employees/${id}`,{
+      headers: { 
+        Authorization: `Bearer ${token}` 
+      } 
+    });
     return response.data;
   } catch (error) {
     console.error('Delete manager error:', error.response.data);
@@ -158,11 +168,11 @@ export const deleteManager  = async (id) => {
   }
 };
 
-// 获取员工账号信息函数
-export const getEmployeeAccounts = async () => {
+// 获取账号函数
+export const getAccounts = async () => {
   try {
     const token = localStorage.getItem('token');    
-    const response = await axios.get('/employee_accounts',{
+    const response = await axios.get('/accounts',{
       headers: { 
         Authorization: `Bearer ${token}` 
       } 
@@ -174,10 +184,10 @@ export const getEmployeeAccounts = async () => {
   }
 };
 
-// 添加员工账号函数
-export const addEmployeeAccount = async (username, password) => {
+// 添加账号函数
+export const addAccount = async (username, password, type) => {
   try {
-    const response = await axios.post('/employee_accounts', { username, password });
+    const response = await axios.post('/accounts', { username, password, type });
     return response.data;
   } catch (error) {
     console.error('Add employee account error:', error.response.data);
@@ -186,9 +196,9 @@ export const addEmployeeAccount = async (username, password) => {
 };
 
 // 更新员工密码函数
-export const updateEmployeePassword = async (username, password) => {
+export const updateEmployeePassword = async (username, password, type) => {
   try {
-    const response = await axios.put(`/employee_accounts/${username}`, { password });
+    const response = await axios.put(`/accounts/${username}`, { password, type });
     return response.data;
   } catch (error) {
     console.error('Update employee account password error:', error.response.data);
@@ -207,37 +217,10 @@ export const deleteEmployeeUp = async (username) => {
   }
 };
 
-// 获取经理账号信息函数
-export const getManagerAccounts = async () => {
-  try {
-    const token = localStorage.getItem('token');    
-    const response = await axios.get('/manager_accounts',{
-      headers: { 
-        Authorization: `Bearer ${token}` 
-      } 
-    });
-    return response.data;
-  } catch (error) {
-    console.error('Get manager accounts error:', error.response.data);
-    throw error;
-  }
-};
-
-// 添加经理账号函数
-export const addManagerAccount = async (username, password) => {
-  try {
-    const response = await axios.post('/manager_accounts', { username, password });
-    return response.data;
-  } catch (error) {
-    console.error('Add manager account error:', error.response.data);
-    throw error;
-  }
-};
-
 // 更新经理密码函数
-export const updateManagerPassword = async (username, password) => {
+export const updateManagerPassword = async (username, password, type) => {
   try {
-    const response = await axios.put(`/manager_accounts/${username}`, { password });
+    const response = await axios.put(`/accounts/${username}`, { password, type });
     return response.data;
   } catch (error) {
     console.error('Update manager account password error:', error.response.data);
