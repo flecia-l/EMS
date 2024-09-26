@@ -1,9 +1,9 @@
 <template>
     <div class="common-table">
-        <el-table :data="table_data" height="93%">
+        <el-table :data="tableData" height="93%">
             <el-table-column
             show-overflow-tooltip
-            v-for="item in table_config"
+            v-for="item in tableConfig"
             :key="item.label"
             :label="item.label"
             :width="item.width ? item.width : 150"
@@ -25,8 +25,8 @@
             class="pager"
             layout="prev, pager, next"
             background
-            :total="page_config.total"
-            :current-page.sync="page_config.page"
+            :total="localPageConfig.total"
+            :current-page="localPageConfig.page"
             @current-change="changePage"
         >
 
@@ -44,9 +44,10 @@
         },
         data() {
             return {
-                table_config: this.tableConfig,
-                table_data: this.tableData,
-                page_config: this.pageConfig,
+                // table_config: this.tableConfig,
+                // table_data: this.tableData,
+                // page_config: this.pageConfig,
+                localPageConfig: { ...this.pageConfig }  // 创建 pageConfig 的本地副本
             };
         },
         methods: {
@@ -57,16 +58,20 @@
                 this.$emit('del',row);
             },
             changePage(page) {
+                this.localPageConfig.page = page;  // 修改本地副本的页码
                 this.$emit('changePage', page);
             },
         },
         watch: {
-            tableData(val) {
-                this.table_data = val;
-            },
-            pageConfig(val) {
-                this.page_config = val;
-            },
+            // tableData(val) {
+            //     this.table_data = val;
+            // },
+            // pageConfig(val) {
+            //     this.page_config = val;
+            // },
+            pageConfig(newVal) {
+                this.localPageConfig = { ...newVal };
+    }
         },
     }
 </script>

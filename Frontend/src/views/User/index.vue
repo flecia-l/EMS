@@ -37,7 +37,7 @@
             :pageConfig="pageConfig"
             @edit="editUser"
             @del="delUser"
-            @changePage="getList()"
+            @changePage="handlePageChange"
         >
         </common-table>
     </div>
@@ -158,6 +158,7 @@
                 pageConfig: {
                     page: 1,
                     total: 100,
+                    pageSize: 5
                 },
             };
         },
@@ -200,9 +201,15 @@
                 };
             },
             editUser(row) {
+                console.log(row)
                 this.operateType = 'edit';
                 this.isShow = true;
-                this.formData = {...row};
+                this.formData.id = row.Id;
+                this.formData.name = row.Name;
+                this.formData.gender = row.Gender;
+                this.formData.age = row.Age;
+                this.formData.dept = row.Dept;
+                this.formData.type = row.Type;
             },
             delUser(row) {
                 this.$confirm('此操作将永久删除该用户, 是否继续?', '提示', {
@@ -230,14 +237,19 @@
                         this.getList(); 
                     });
             },
-            getList(name = '') {
+            handlePageChange(newPage) {
+                // 更新 pageConfig.page，并重新获取数据
+                this.pageConfig.page = newPage;
+                this.getList();  // 获取新页数据
+            },
+            getList(searchValue = '') {
                 this.pageConfig.loading = true;
-                this.pageConfig.page = name ? 1 : this.pageConfig.page;
-                getEmployees().then(res => {
-                    this.tableData = res.data
-                    console.log(res.data)
-                    this.tableConfig.total = res.data.count
-                    this.tableConfig.loading = false
+                this.pageConfig.page = searchValue ? 1 : this.pageConfig.page;
+                const { page, pageSize } = this.pageConfig;  // 获取当前页码和每页条目数
+                getEmployees(searchValue, page, pageSize).then(res => {
+                    this.tableData = res.data;
+                    this.pageConfig.total = res.total;
+                    this.tableConfig.loading = false;
                 });
             }
         },

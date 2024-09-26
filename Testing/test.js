@@ -47,7 +47,8 @@ describe('Employee API Tests', () => {
             name: 'John Doe',
             gender: 'Male',
             age: 30,
-            dept: 'IT'
+            dept: 'IT',
+            type: 'Employee'
         };
         const response = await request(app)
             .post('/api/employees')
@@ -65,7 +66,8 @@ describe('Employee API Tests', () => {
             name: 'Jane Doe',
             gender: 'Female',
             age: 31,
-            dept: 'HR'
+            dept: 'HR',
+            type: 'Employee'
         };
         const response = await request(app)
             .put('/api/employees/10')

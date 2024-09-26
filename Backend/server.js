@@ -29,7 +29,7 @@ app.get('/', (req, res) => {
   res.send('Hello, Express!');
 });
 
-// 启动服务器
+// 启动服务器 (测试时需要注释)
 app.listen(port, () => {
   console.log(`Server running on http://localhost:${port}`);
 });

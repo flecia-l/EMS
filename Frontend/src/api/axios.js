@@ -20,13 +20,18 @@ export const loginPermission = async (username, password) => {
 };
 
 // 获取员工列表函数
-export const getEmployees = async () => {
+export const getEmployees = async (searchValue, page, pageSize) => {
   try {
     const token = localStorage.getItem('token');
-    const response = await axios.get('/employees', { 
+    const url = searchValue ? `employees/?search=${searchValue}` : 'employees';
+    const response = await axios.get(url, { 
       headers: { 
         Authorization: `Bearer ${token}` 
-      } 
+      } ,
+      params: {
+        page,
+        pageSize
+      }
     });
     return response.data;
   } catch (error) {
@@ -69,13 +74,18 @@ export const deleteEmployee = async (id) => {
 };
 
 // 获取所有账号信息（员工和经理）函数
-export const getAccounts = async () => {
+export const getAccounts = async (searchValue, page, pageSize) => {
   try {
     const token = localStorage.getItem('token');
-    const response = await axios.get('/accounts', { 
+    const url = searchValue ? `accounts/?search=${searchValue}` : 'accounts';
+    const response = await axios.get(url, { 
       headers: { 
         Authorization: `Bearer ${token}` 
-      } 
+      },
+      params: {
+        page,
+        pageSize
+      }
     });
     return response.data;
   } catch (error) {

@@ -37,9 +37,9 @@
             :pageConfig="pageConfig"
             @edit="updateAccount"
             @del="deleteAccount"
-            @changePage="getList()"
+            @changePage="handlePageChange"
         >
-        <template v-slot:edit_button="{ row }">
+        <template v-slot:edit_button>
             职位变动
         </template>
         </common-table>
@@ -116,6 +116,7 @@
                 pageConfig: {
                     page: 1,
                     total: 100,
+                    pageSize: 5
                 },
             };
         },
@@ -157,7 +158,8 @@
             updateAccount(row) {
                 this.operateType = 'edit';
                 this.isShow = true;
-                this.formData = {...row};
+                this.formData.username = row.User_name;
+                this.formData.type = row.type;
             },
             deleteAccount(row) {
                 const action = row.type === 'Employee' ? 'Promotion' : 'Demotion';
@@ -205,14 +207,19 @@
                     console.log(err);
                 });
             },
-            getList(name = '') {
+            handlePageChange(newPage) {
+                // 更新 pageConfig.page，并重新获取数据
+                this.pageConfig.page = newPage;
+                this.getList();  // 获取新页数据
+            },
+            getList(searchValue = '') {
                 this.pageConfig.loading = true;
-                this.pageConfig.page = name ? 1 : this.pageConfig.page;
-                getAccounts().then(res => {
-                    this.tableData = res.data
-                    console.log(res.data)
-                    this.tableConfig.total = res.data.count
-                    this.tableConfig.loading = false
+                this.pageConfig.page = searchValue ? 1 : this.pageConfig.page;
+                const { page, pageSize } = this.pageConfig;  // 获取当前页码和每页条目数
+                getAccounts(searchValue, page, pageSize).then(res => {
+                    this.tableData = res.data;
+                    this.pageConfig.total = res.total;
+                    this.tableConfig.loading = false;
                 });
             }
         },
