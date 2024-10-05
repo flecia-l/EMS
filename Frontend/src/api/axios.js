@@ -1,16 +1,17 @@
 import axios from 'axios';
+import store from '@/store';
 
 // 设置axios的基本URL，这应该是你的后端服务地址
 axios.defaults.baseURL = 'http://localhost:3000/api';
 
 // 用于保存JWT令牌的变量
-let token = null;
+// let token = null;
 
 // 登陆验证函数
 export const loginPermission = async (username, password) => {
   try {
     const response = await axios.post('/login', { username, password });
-    token = response.data.data.token; // 保存服务器返回的JWT令牌
+    const token = response.data.data.token; // 保存服务器返回的JWT令牌
     axios.defaults.headers.common['Authorization'] = `Bearer ${token}`; // 设置后续请求的认证头
     return response.data;
   } catch (error) {
@@ -22,7 +23,8 @@ export const loginPermission = async (username, password) => {
 // 获取员工列表函数
 export const getEmployees = async (searchValue, page, pageSize) => {
   try {
-    const token = localStorage.getItem('token');
+    // const token = localStorage.getItem('token');
+    const token = store.state.user.token;
     const url = searchValue ? `employees/?search=${searchValue}` : 'employees';
     const response = await axios.get(url, { 
       headers: { 
@@ -35,6 +37,7 @@ export const getEmployees = async (searchValue, page, pageSize) => {
     });
     return response.data;
   } catch (error) {
+    console.log(error);
     console.error('Get employees error:', error.response.data);
     throw error;
   }
@@ -76,7 +79,8 @@ export const deleteEmployee = async (id) => {
 // 获取所有账号信息（员工和经理）函数
 export const getAccounts = async (searchValue, page, pageSize) => {
   try {
-    const token = localStorage.getItem('token');
+    // const token = localStorage.getItem('token');
+    const token = store.state.user.token;
     const url = searchValue ? `accounts/?search=${searchValue}` : 'accounts';
     const response = await axios.get(url, { 
       headers: { 

@@ -119,13 +119,31 @@ router.get('/employees', authenticate, async (req, res) => {
             `;
         } else if (userType === 1) {
             // 经理: 只能看到自己部门的员工
-            conditions.push('Dept = (SELECT Dept FROM manager WHERE Id = ?)');
-            queryParams.push(username);
-            query += ' WHERE ' + conditions.join(' AND ');
-            countQuery += ' WHERE ' + conditions.join(' AND ');
+            // conditions.push('Dept = (SELECT Dept FROM manager WHERE Id = ?)');
+            // queryParams.push(username, username);
+            // query += ' WHERE ' + conditions.join(' AND ');
+            // countQuery += ' WHERE ' + conditions.join(' AND ');
+            query = `
+                SELECT * FROM employee
+                WHERE Dept = (SELECT Dept FROM manager WHERE Id = ?)
+                UNION
+                SELECT * FROM manager
+                WHERE Id = ?
+            `;
+            countQuery = `
+                SELECT COUNT(*) AS total FROM (
+                    SELECT * FROM employee
+                    WHERE Dept = (SELECT Dept FROM manager WHERE Id = ?)
+                    UNION
+                    SELECT * FROM manager
+                    WHERE Id = ?
+                ) AS combined
+            `;
+        
+            queryParams.push(username, username);  // 参数对应经理的用户名
         } else if (userType === 2) {
             // 员工: 只能看到自己的信息
-            conditions.push('Id = (SELECT Id FROM employee_login WHERE User_name = ?)');
+            conditions.push('Id = (SELECT User_name FROM employee_login WHERE User_name = ?)');
             queryParams.push(username);
             query += ' WHERE ' + conditions.join(' AND ');
             countQuery += ' WHERE ' + conditions.join(' AND ');
@@ -151,9 +169,6 @@ router.get('/employees', authenticate, async (req, res) => {
         res.status(500).json({ error: err.message });
     }
 });
-
-
-
 
 // 添加员工信息
 router.post('/employees', async (req, res) => {
@@ -210,25 +225,29 @@ router.put('/employees/:id', async (req, res) => {
 router.delete('/employees/:id', async (req, res) => {
     const { id } = req.params;
     try {
-        // 首先尝试在 employee 表中查找
         let result = await pool.query('SELECT Id FROM employee WHERE Id = ?', [id]);
-        let tableName;
-        if (result.length > 0) {
+        let tableName = '';
+
+        if (result[0].length > 0) {
             tableName = 'employee';
         } else {
-            // 如果 employee 表中没有找到，再在 manager 表中查找
             result = await pool.query('SELECT Id FROM manager WHERE Id = ?', [id]);
-            if (result.length > 0) {
+            if (result[0].length > 0) {
                 tableName = 'manager';
             }
         }
-        // 如果找到了对应的表名，则执行删除操作
+
+        // 判断是否找到了表名
         if (tableName) {
-            await pool.query(`DELETE FROM ${tableName} WHERE Id = ?`, [id]);
+            // 安全地删除员工或经理
+            if (tableName === 'employee') {
+                await pool.query('DELETE FROM employee WHERE Id = ?', [id]);
+            } else if (tableName === 'manager') {
+                await pool.query('DELETE FROM manager WHERE Id = ?', [id]);
+            }
             res.json({ code: 200, message: '员工删除成功' });
         } else {
-            // 如果两个表都没有找到 ID，则返回错误信息
-            res.status(404).json({ message: '未找到指定的员工' });
+            res.status(404).json({ message: '未找到指定的员工或经理' });
         }
     } catch (err) {
         res.status(500).json({ error: err.message });

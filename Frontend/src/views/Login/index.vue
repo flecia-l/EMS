@@ -65,7 +65,7 @@ export default {
             loginPermission(username, password).then((res) => {
                 console.log(res)
                     if (res.code === 200) {
-                        localStorage.setItem('token', res.data.token);
+                        // localStorage.setItem('token', res.data.token);
                         this.$store.commit('tab/DEL_MENU');
                         this.$store.commit('tab/SET_MENU', res.data.menu);
                         this.$store.commit('tab/ADD_MENU', this.$router);
